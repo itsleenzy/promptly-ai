@@ -503,7 +503,7 @@
             <label>Your Prompt Draft</label>
             <textarea id="pInput" placeholder="Enter your prompt draft here..."></textarea>
             <div class="meta-row">
-                <span id="singleCount">0 words · 0 chars</span>
+                <span id="singleCount">0 words | 0 chars</span>
                 <span>Shortcut: Ctrl + Enter</span>
             </div>
         </div>
@@ -551,6 +551,9 @@
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
     }
+
+    // --- RENDER LINK CONFIG ---
+    const RENDER_URL = "https://promptly-ai-jelz.onrender.com";
 
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -603,7 +606,7 @@
 
     function updateCounts() {
         const singleText = singleInput.value;
-        document.getElementById('singleCount').innerText = `${wordCount(singleText)} words · ${singleText.length} chars`;
+        document.getElementById('singleCount').innerText = `${wordCount(singleText)} words | ${singleText.length} chars`;
         const bulkItems = parseBulk(bulkInput.value);
         document.getElementById('bulkCount').innerText = `${bulkItems.length} prompts`;
     }
@@ -633,7 +636,7 @@
             if (state.mode === 'single') {
                 const input = singleInput.value.trim();
                 if (!input) return;
-                const response = await fetch('http://127.0.0.1:5000/improve', {
+                const response = await fetch(`${RENDER_URL}/improve`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: input, tone: tone, format_hint: formatHint, constraints })
@@ -646,7 +649,7 @@
             } else {
                 const inputs = parseBulk(bulkInput.value);
                 if (inputs.length === 0) return;
-                const response = await fetch('http://127.0.0.1:5000/improve-bulk', {
+                const response = await fetch(`${RENDER_URL}/improve-bulk`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompts: inputs, tone: tone, format_hint: formatHint, constraints })
@@ -659,7 +662,7 @@
                 saveToHistory({ mode: 'bulk', input: inputs, output: state.latestBulk, tone, formatHint, constraints });
             }
         } catch (err) {
-            showToast('Error: Make sure your Python server is running!');
+            showToast('Error: Server is waking up or offline. Please wait 30s!');
         } finally {
             mainBtn.innerText = 'Architect Prompt';
             mainBtn.disabled = false;
@@ -854,7 +857,7 @@
     async function checkServer() {
         const status = document.getElementById('status');
         try {
-            const response = await fetch('http://127.0.0.1:5000/health');
+            const response = await fetch(`${RENDER_URL}/`);
             if (!response.ok) throw new Error('offline');
             status.classList.add('online');
             status.querySelector('span').innerText = 'Server: Online';
