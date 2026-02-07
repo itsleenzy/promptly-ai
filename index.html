@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptly AI | Architect</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0f1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Promptly AI">
+    <link rel="apple-touch-icon" href="logo.png.png">
+    <link rel="icon" type="image/png" href="logo.png.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #0b0f1a;
+            --bg-2: #0f172a;
+            --card: rgba(255, 255, 255, 0.04);
+            --card-strong: rgba(255, 255, 255, 0.08);
+            --primary: #e2e8f0;
+            --accent: #f8fafc;
+            --text: #f8fafc;
+            --text-dim: #9aa7bd;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --ease-elastic: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --success: #4ade80;
+            --warning: #fbbf24;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(80vw 60vh at 10% -10%, rgba(59, 130, 246, 0.18), transparent 70%),
+                radial-gradient(60vw 50vh at 110% 10%, rgba(34, 197, 94, 0.12), transparent 70%),
+                linear-gradient(rgba(11, 15, 26, 0.88), rgba(11, 15, 26, 0.88)),
+                url('logo.png.png');
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 520px;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            min-height: 100vh;
+            letter-spacing: -0.02em;
+            overflow-x: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: radial-gradient(circle at 20% 0%, rgba(0,0,0,0.8), transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 980px;
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 30px 80px -24px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .brand h1 {
+            font-size: 2.7rem;
+            margin: 0;
+            background: linear-gradient(90deg, #f8fafc, #a7f3d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: -2px;
+        }
+
+        .brand p {
+            margin: 0.3rem 0 0 0;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--card-strong);
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+        }
+
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--warning);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.7);
+        }
+        .status.online .dot {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+        }
+
+        #installBtn {
+            display: none;
+            width: 100%;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            border: 1px dashed var(--primary);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.5s var(--ease-elastic);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.2rem;
+        }
+
+        .control {
+            grid-column: span 4;
+        }
+
+        .control.wide {
+            grid-column: span 12;
+        }
+
+        .control.half {
+            grid-column: span 6;
+        }
+
+        label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+        }
+
+        select, textarea, input[type="text"] {
+            width: 100%;
+            background: #0d1324;
+            border: 1px solid #22314f;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: inherit;
+            outline: none;
+            font-size: 0.95rem;
+            transition: border-color 0.4s var(--ease-elastic), box-shadow 0.4s var(--ease-elastic);
+        }
+
+        select:focus, textarea:focus, input[type="text"]:focus {
+            border-color: rgba(226, 232, 240, 0.6);
+            box-shadow: 0 0 0 6px rgba(226, 232, 240, 0.08);
+        }
+
+        textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 0.6rem;
+            background: #0d1324;
+            border: 1px solid #22314f;
+            padding: 0.4rem;
+            border-radius: 999px;
+        }
+
+        .mode-toggle button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-elastic);
+        }
+
+        .mode-toggle button.active {
+            color: #0b0f1a;
+            background: #f8fafc;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        button#mainBtn {
+            grid-column: span 6;
+            padding: 1rem;
+            border-radius: 14px;
+            border: none;
+            background: #f8fafc;
+            color: #0b0f1a;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.5s var(--ease-elastic), box-shadow 0.5s var(--ease-elastic), opacity 0.5s var(--ease-elastic);
+        }
+
+        button#mainBtn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(248, 250, 252, 0.2), 0 0 30px rgba(248, 250, 252, 0.3);
+        }
+
+        button#mainBtn.loading {
+            animation: pulse 1.2s ease-in-out infinite;
+            cursor: progress;
+            filter: saturate(1.1);
+        }
+
+        .sub-btn {
+            grid-column: span 3;
+            padding: 0.85rem;
+            border-radius: 14px;
+            border: 1px solid #22314f;
+            background: #0d1324;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-elastic);
+        }
+
+        .sub-btn:hover { box-shadow: 0 0 20px rgba(226, 232, 240, 0.18); }
+
+        #output-container { margin-top: 2rem; display: none; border-top: 1px solid #22314f; padding-top: 1.5rem; }
+
+        #output {
+            background: #0d1324;
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 1px solid #22314f;
+            color: #cbd5e1;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+
+        .copy-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.5s var(--ease-elastic);
+        }
+
+        .copy-btn:hover { box-shadow: 0 0 20px rgba(226, 232, 240, 0.2); }
+
+        .bulk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .bulk-card {
+            background: #0d1324;
+            border: 1px solid #22314f;
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .bulk-card h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .bulk-card pre {
+            margin: 0;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+            font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: rgba(248, 250, 252, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.4s var(--ease-elastic);
+        }
+
+        .progress-bar::after {
+            content: "";
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: rgba(248, 250, 252, 0.8);
+            box-shadow: 0 0 12px rgba(248, 250, 252, 0.5);
+            animation: progressMove 1.5s ease-in-out infinite;
+        }
+
+        .container.loading .progress-bar { opacity: 1; }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: all 0.5s var(--ease-elastic);
+            z-index: 2;
+            backdrop-filter: blur(12px);
+        }
+
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .memory-section { width: 100%; max-width: 980px; margin-top: 3rem; position: relative; z-index: 1; }
+
+        .memory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .memory-dock {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 4px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .memory-card {
+            flex: 0 0 220px;
+            height: 180px;
+            background: var(--card);
+            padding: 0.9rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            scroll-snap-align: start;
+            cursor: pointer;
+            transition: transform 0.4s var(--ease-elastic), border-color 0.4s var(--ease-elastic);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(248, 250, 252, 0.3);
+        }
+
+        .hidden { display: none; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.35); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        @keyframes progressMove {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(260%); }
+        }
+
+        @media (max-width: 880px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .control { grid-column: span 6; }
+            button#mainBtn { grid-column: span 12; }
+            .sub-btn { grid-column: span 6; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 1.2rem; }
+            .container { padding: 1.5rem; }
+            .control { grid-column: span 12; }
+            .sub-btn { grid-column: span 12; }
+            .output-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="grid-lines"></div>
+
+<div class="container">
+    <div class="progress-bar"></div>
+    <button id="installBtn">Install Promptly AI</button>
+
+    <div class="header">
+        <div class="brand">
+            <h1>PROMPTLY AI</h1>
+            <p>Architect clearer prompts with RTF precision and modern guardrails.</p>
+        </div>
+        <div id="status" class="status">
+            <div class="dot"></div>
+            <span>Server: Checking...</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control">
+            <label>Mode</label>
+            <div class="mode-toggle">
+                <button id="modeSingle" class="active">Single</button>
+                <button id="modeBulk">Bulk</button>
+            </div>
+        </div>
+
+        <div class="control">
+            <label>Tone</label>
+            <select id="toneSelect">
+                <option value="Professional & Sharp">Professional & Sharp</option>
+                <option value="Creative & Descriptive">Creative & Descriptive</option>
+                <option value="Strict & Technical">Strict & Technical</option>
+                <option value="Friendly & Supportive">Friendly & Supportive</option>
+                <option value="Executive & Concise">Executive & Concise</option>
+            </select>
+        </div>
+
+        <div class="control">
+            <label>Format Style</label>
+            <select id="formatSelect">
+                <option value="Clean bullet structure">Clean bullet structure</option>
+                <option value="Step-by-step" >Step-by-step</option>
+                <option value="Checklist" >Checklist</option>
+                <option value="YAML" >YAML</option>
+                <option value="JSON" >JSON</option>
+                <option value="Verbose" >Verbose</option>
+            </select>
+        </div>
+
+        <div class="control wide">
+            <label>Constraints (Optional)</label>
+            <input id="constraintsInput" type="text" placeholder="Add constraints like word limit, style rules, banned content, or required sections" />
+        </div>
+
+        <div id="singleInputWrap" class="control wide">
+            <label>Your Prompt Draft</label>
+            <textarea id="pInput" placeholder="Enter your prompt draft here..."></textarea>
+            <div class="meta-row">
+                <span id="singleCount">0 words · 0 chars</span>
+                <span>Shortcut: Ctrl + Enter</span>
+            </div>
+        </div>
+
+        <div id="bulkInputWrap" class="control wide hidden">
+            <label>Bulk Prompts</label>
+            <textarea id="bulkInput" placeholder="Paste multiple prompts separated by blank lines..."></textarea>
+            <div class="meta-row">
+                <span id="bulkCount">0 prompts</span>
+                <span>Separator: blank line</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <button onclick="process()" id="mainBtn">Architect Prompt</button>
+        <button onclick="clearInputs()" class="sub-btn">Clear</button>
+        <button onclick="insertSample()" class="sub-btn">Sample</button>
+        <button onclick="downloadOutput()" class="sub-btn">Download</button>
+    </div>
+
+    <div id="output-container">
+        <label>Architected Output</label>
+        <div id="output"></div>
+        <div class="output-actions">
+            <button onclick="copyText()" class="copy-btn">Copy Output</button>
+            <button onclick="copyAllBulk()" class="copy-btn" id="copyAllBtn">Copy All</button>
+            <button onclick="exportHistory()" class="copy-btn">Export History</button>
+        </div>
+        <div id="bulkOutput" class="bulk-grid"></div>
+    </div>
+</div>
+
+<div class="memory-section">
+    <div class="memory-header">
+        <label>History</label>
+        <button onclick="clearHistory()" class="copy-btn">Clear History</button>
+    </div>
+    <div id="memoryList" class="memory-dock"></div>
+</div>
+
+<div id="toast" class="toast">Copied</div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBtn').style.display = 'block';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt = null;
+            document.getElementById('installBtn').style.display = 'none';
+        }
+    });
+
+    const state = {
+        mode: 'single',
+        latestBulk: []
+    };
+
+    const singleInput = document.getElementById('pInput');
+    const bulkInput = document.getElementById('bulkInput');
+
+    document.getElementById('modeSingle').addEventListener('click', () => setMode('single'));
+    document.getElementById('modeBulk').addEventListener('click', () => setMode('bulk'));
+
+    function setMode(mode) {
+        state.mode = mode;
+        document.getElementById('modeSingle').classList.toggle('active', mode === 'single');
+        document.getElementById('modeBulk').classList.toggle('active', mode === 'bulk');
+        document.getElementById('singleInputWrap').classList.toggle('hidden', mode !== 'single');
+        document.getElementById('bulkInputWrap').classList.toggle('hidden', mode !== 'bulk');
+        document.getElementById('copyAllBtn').style.display = mode === 'bulk' ? 'inline-flex' : 'none';
+        updateCounts();
+    }
+
+    function wordCount(text) {
+        const trimmed = text.trim();
+        if (!trimmed) return 0;
+        return trimmed.split(/\s+/).length;
+    }
+
+    function parseBulk(text) {
+        return text
+            .split(/(?:\r?\n){2,}/)
+            .map(item => item.trim())
+            .filter(Boolean);
+    }
+
+    function updateCounts() {
+        const singleText = singleInput.value;
+        document.getElementById('singleCount').innerText = `${wordCount(singleText)} words · ${singleText.length} chars`;
+        const bulkItems = parseBulk(bulkInput.value);
+        document.getElementById('bulkCount').innerText = `${bulkItems.length} prompts`;
+    }
+
+    singleInput.addEventListener('input', updateCounts);
+    bulkInput.addEventListener('input', updateCounts);
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            process();
+        }
+    });
+
+    async function process() {
+        const tone = document.getElementById('toneSelect').value;
+        const formatHint = document.getElementById('formatSelect').value;
+        const constraints = document.getElementById('constraintsInput').value.trim();
+
+        const mainBtn = document.getElementById('mainBtn');
+        const container = document.querySelector('.container');
+        mainBtn.innerText = state.mode === 'bulk' ? 'Architecting Bulk...' : 'Architecting...';
+        mainBtn.disabled = true;
+        mainBtn.classList.add('loading');
+        container.classList.add('loading');
+
+        try {
+            if (state.mode === 'single') {
+                const input = singleInput.value.trim();
+                if (!input) return;
+                const response = await fetch('http://127.0.0.1:5000/improve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: input, tone: tone, format_hint: formatHint, constraints })
+                });
+                const data = await response.json();
+                document.getElementById('output-container').style.display = 'block';
+                document.getElementById('bulkOutput').innerHTML = '';
+                await typewriter(document.getElementById('output'), data.improved_prompt, 7);
+                saveToHistory({ mode: 'single', input, output: data.improved_prompt, tone, formatHint, constraints });
+            } else {
+                const inputs = parseBulk(bulkInput.value);
+                if (inputs.length === 0) return;
+                const response = await fetch('http://127.0.0.1:5000/improve-bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompts: inputs, tone: tone, format_hint: formatHint, constraints })
+                });
+                const data = await response.json();
+                state.latestBulk = data.results || [];
+                document.getElementById('output-container').style.display = 'block';
+                document.getElementById('output').innerText = '';
+                renderBulk(state.latestBulk);
+                saveToHistory({ mode: 'bulk', input: inputs, output: state.latestBulk, tone, formatHint, constraints });
+            }
+        } catch (err) {
+            showToast('Error: Make sure your Python server is running!');
+        } finally {
+            mainBtn.innerText = 'Architect Prompt';
+            mainBtn.disabled = false;
+            mainBtn.classList.remove('loading');
+            container.classList.remove('loading');
+        }
+    }
+
+    function renderBulk(results) {
+        const bulkOutput = document.getElementById('bulkOutput');
+        bulkOutput.innerHTML = results.map((item, index) => {
+            const content = item.error ? `Error: ${item.error}` : item.improved;
+            return `
+                <div class="bulk-card">
+                    <h4>Prompt ${index + 1}</h4>
+                    <pre>${escapeHtml(content)}</pre>
+                    <button class="copy-btn" onclick="copyBulkItem(${index})">Copy</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function escapeHtml(text) {
+        return text
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;');
+    }
+
+    function copyBulkItem(index) {
+        const item = state.latestBulk[index];
+        if (!item) return;
+        const content = item.error ? `Error: ${item.error}` : item.improved;
+        navigator.clipboard.writeText(content);
+        showToast('Copied');
+    }
+
+    function copyAllBulk() {
+        if (state.mode !== 'bulk' || state.latestBulk.length === 0) return;
+        const combined = state.latestBulk.map((item, idx) => {
+            const content = item.error ? `Error: ${item.error}` : item.improved;
+            return `Prompt ${idx + 1}\n${content}`;
+        }).join('\n\n');
+        navigator.clipboard.writeText(combined);
+        showToast('Copied all');
+    }
+
+    function copyText() {
+        const text = document.getElementById('output').innerText;
+        if (!text) return;
+        navigator.clipboard.writeText(text);
+        showToast('Copied');
+    }
+
+    function clearInputs() {
+        singleInput.value = '';
+        bulkInput.value = '';
+        updateCounts();
+        showToast('Cleared');
+    }
+
+    function insertSample() {
+        if (state.mode === 'single') {
+            singleInput.value = 'Write a product launch announcement for a productivity app that focuses on focus sprints and calm design.';
+        } else {
+            bulkInput.value = [
+                'Design a user research plan for a budgeting app aimed at freelancers.',
+                'Create a step-by-step SOP for onboarding new support agents.',
+                'Generate a 30-day content plan for a B2B cybersecurity startup.'
+            ].join('\n\n');
+        }
+        updateCounts();
+    }
+
+    function downloadOutput() {
+        const tone = document.getElementById('toneSelect').value;
+        if (state.mode === 'single') {
+            const text = document.getElementById('output').innerText;
+            if (!text) return;
+            downloadFile(`promptly-${Date.now()}.md`, `# Promptly Output\nTone: ${tone}\n\n${text}`);
+        } else {
+            if (state.latestBulk.length === 0) return;
+            const body = state.latestBulk.map((item, idx) => {
+                const content = item.error ? `Error: ${item.error}` : item.improved;
+                return `## Prompt ${idx + 1}\n${content}`;
+            }).join('\n\n');
+            downloadFile(`promptly-bulk-${Date.now()}.md`, `# Promptly Bulk Output\nTone: ${tone}\n\n${body}`);
+        }
+        showToast('Downloaded');
+    }
+
+    function downloadFile(filename, text) {
+        const blob = new Blob([text], { type: 'text/markdown' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+    }
+
+    function typewriter(element, text, delayMs) {
+        return new Promise((resolve) => {
+            element.innerText = '';
+            let i = 0;
+            const timer = setInterval(() => {
+                element.innerText += text.charAt(i);
+                i += 1;
+                if (i >= text.length) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, delayMs);
+        });
+    }
+
+    let toastTimer;
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function saveToHistory(entry) {
+        const history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+        history.unshift({ ...entry, timestamp: new Date().toISOString() });
+        if (history.length > 12) history.pop();
+        localStorage.setItem('promptHistory', JSON.stringify(history));
+        loadHistory();
+    }
+
+    function loadHistory() {
+        const history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+        const memoryList = document.getElementById('memoryList');
+        if (history.length === 0) {
+            memoryList.innerHTML = '';
+            return;
+        }
+        memoryList.innerHTML = history.map((item, idx) => {
+            const preview = item.mode === 'single'
+                ? item.output?.substring(0, 90)
+                : `${item.output?.length || 0} prompts`;
+            return `
+                <div class="memory-card" onclick="loadHistoryItem(${idx})">
+                    <div style="font-size: 0.7rem; color: var(--text-dim);">${new Date(item.timestamp).toLocaleString()}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em;">${item.mode}</div>
+                    <div style="font-size: 0.85rem; color: var(--primary); margin-top:6px;">${preview || ''}...</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function loadHistoryItem(index) {
+        const history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+        const item = history[index];
+        if (!item) return;
+        setMode(item.mode);
+        document.getElementById('toneSelect').value = item.tone || 'Professional & Sharp';
+        document.getElementById('formatSelect').value = item.formatHint || 'Clean bullet structure';
+        document.getElementById('constraintsInput').value = item.constraints || '';
+        if (item.mode === 'single') {
+            singleInput.value = item.input || '';
+            document.getElementById('output-container').style.display = 'block';
+            document.getElementById('output').innerText = item.output || '';
+            document.getElementById('bulkOutput').innerHTML = '';
+        } else {
+            bulkInput.value = (item.input || []).join('\n\n');
+            state.latestBulk = item.output || [];
+            document.getElementById('output-container').style.display = 'block';
+            document.getElementById('output').innerText = '';
+            renderBulk(state.latestBulk);
+        }
+        updateCounts();
+    }
+
+    function clearHistory() {
+        localStorage.removeItem('promptHistory');
+        loadHistory();
+        showToast('History cleared');
+    }
+
+    function exportHistory() {
+        const history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+        if (history.length === 0) return;
+        downloadFile(`promptly-history-${Date.now()}.json`, JSON.stringify(history, null, 2));
+        showToast('History exported');
+    }
+
+    async function checkServer() {
+        const status = document.getElementById('status');
+        try {
+            const response = await fetch('http://127.0.0.1:5000/health');
+            if (!response.ok) throw new Error('offline');
+            status.classList.add('online');
+            status.querySelector('span').innerText = 'Server: Online';
+        } catch {
+            status.classList.remove('online');
+            status.querySelector('span').innerText = 'Server: Offline';
+        }
+    }
+
+    window.addEventListener('load', () => {
+        loadHistory();
+        updateCounts();
+        checkServer();
+    });
+</script>
+</body>
+</html>
