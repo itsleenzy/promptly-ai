@@ -93,4 +93,8 @@ def improve_bulk():
 
 if __name__ == '__main__':
     app.run(port=5000)
+
+@app.route('/')
+def home():
+    return "Promptly AI Backend is Live and Architecting!"
     
