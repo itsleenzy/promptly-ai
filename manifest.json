@@ -1,15 +1,41 @@
 ﻿{
+  "manifest_version": 3,
   "name": "Promptly AI",
-  "short_name": "Promptly",
-  "id": "promptly-ai",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "description": "Prompt architecting tool for crafting refined prompts.",
-  "icons": [
-    { "src": "logo.png.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "logo.png.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ]
+  "version": "0.1.0",
+  "description": "Prompt enhancement button for popular AI chat inputs.",
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://perplexity.ai/*",
+    "https://meta.ai/*",
+    "https://x.com/*",
+    "https://chat.deepseek.com/*",
+    "https://www.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*",
+        "https://gemini.google.com/*",
+        "https://perplexity.ai/*",
+        "https://meta.ai/*",
+        "https://x.com/*",
+        "https://chat.deepseek.com/*",
+        "https://www.google.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["logo.png.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "32": "logo.png.png",
+    "128": "logo.png.png"
+  }
 }
