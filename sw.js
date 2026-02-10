@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = "promptly-ai-v1";
+const CACHE_NAME = "promptly-ai-v1";
 const ASSETS = [
   "./",
   "index.html",
